@@ -1,0 +1,91 @@
+/* Program : Pengolahan data mahasiswa
+*Contoh I/O Serial
+*/
+//Konstanta, Pakai model alam
+#define BOBOT_UTS 0.4
+#define BOBOT_UAS 0.6
+//Konstanta, gaya baru
+const float bA = 85.0;
+const float bB = 75.0;
+const float bC = 60.0;
+const float bD = 40.0;
+//Data mahasiswa 
+long nim;
+String nama;
+float uts;
+float uas;
+float nilai_angka;
+char nilai_huruf;
+
+/* menampilkan prompt dan tunggu jawaban */
+void tanya(char s[]) {
+  while (Serial.available()) Serial.read(); // Bersihkan buffer
+  Serial.print(s);
+  Serial.print(": ");
+  while (!Serial.available()) {
+    // Tunggu input
+  }
+}
+
+/* input data */
+void inputData() {
+  Serial.println("Masukkan data");
+  tanya("NIM");
+  nim = Serial.parseInt();
+  Serial.println(nim);
+  
+  tanya("Nama");
+  while (!Serial.available()) {} // Tunggu input tersedia
+  nama = Serial.readStringUntil('\n');
+  Serial.println(nama);
+  
+  tanya("UTS");
+  uts = Serial.parseFloat();
+  Serial.println(uts);
+  
+  tanya("UAS");
+  uas = Serial.parseFloat();
+  Serial.println(uas);
+}
+
+float nilaiAngka(float uts, float uas) {
+  return (BOBOT_UTS*uts)+(BOBOT_UAS*uas);
+}
+
+char nilaiHuruf(float nangka) {
+  if (nangka >= bA) {
+    return 'A';
+  }
+  else if (nangka < bA && nangka >= bB) {
+    return 'B';
+  }
+  else if (nangka < bB && nangka >= bC) {
+    return 'C';
+  }
+  else if (nangka < bC && nangka >= bD) {
+    return 'D';
+  }
+  else {
+    return 'E';
+  }
+}
+
+void cetakData() {
+  char buffer[60];
+  sprintf(buffer, "%8ld %-15s %6.2f %c", nim, nama.c_str(), nilai_angka, nilai_huruf);
+  Serial.println(buffer);
+  Serial.println("------------");
+}
+
+void setup(){
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println("Pengolahan Nilai");
+}
+
+void loop() {
+  inputData();
+  nilai_angka = nilaiAngka(uts, uas);
+  nilai_huruf = nilaiHuruf(nilai_angka);
+  cetakData();
+}
